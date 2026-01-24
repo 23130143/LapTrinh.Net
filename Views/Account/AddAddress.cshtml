@@ -1,0 +1,25 @@
+﻿@model Bookstore.Models.Deliveryinformation
+
+<div class="container mt-4">
+    <h2 class="text-center">Thêm địa chỉ giao hàng</h2>
+    <form asp-action="AddAddress" method="post">
+        <div class="mb-3">
+            <label class="form-label">Tên người nhận</label>
+            <input asp-for="Name" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Số điện thoại</label>
+            <input asp-for="Phone" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            @* Bổ sung thêm trường Email theo đúng sơ đồ bảng *@
+            <label class="form-label">Email nhận thông báo</label>
+            <input asp-for="Email" type="email" class="form-control" required />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Địa chỉ chi tiết</label>
+            <textarea asp-for="Adress" class="form-control" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Lưu địa chỉ giao hàng</button>
+    </form>
+</div>

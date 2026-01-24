@@ -1,0 +1,52 @@
+﻿@model IEnumerable<Bookstore.Models.User>
+
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Danh sách tài khoản hệ thống</h2>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Họ tên</th>
+                <th>Email</th>
+                <th>Số điện thoại</th>
+                <th>Quyền hiện tại</th>
+                <th>Thay đổi quyền</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model)
+            {
+                <tr>
+                    <td>@user.Id</td>
+                    <td>@user.Name</td>
+                    <td>@user.Email</td>
+                    <td>@user.Phone</td>
+                    <td>
+                        <span class="badge @(user.Role == "Admin" ? "bg-danger" : "bg-primary")">
+                            @user.Role
+                        </span>
+                    </td>
+                    <td>
+                        <form asp-action="UpdateRole" method="post" class="d-flex gap-2">
+                            <input type="hidden" name="userId" value="@user.Id" /> <select name="newRole" class="form-select form-select-sm" style="width: 120px;">
+                                <option value="Customer" selected="@(user.Role == "Customer")">Customer</option>
+                                <option value="Admin" selected="@(user.Role == "Admin")">Admin</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-warning">Lưu</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

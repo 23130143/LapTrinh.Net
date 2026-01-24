@@ -1,0 +1,24 @@
+﻿@model IEnumerable<Bookstore.Models.Deliveryinformation>
+
+<h2>Địa chỉ giao hàng của tôi</h2>
+<a asp-action="AddAddress" class="btn btn-success mb-3">Thêm địa chỉ giao hàng mới</a>
+
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4 mb-3">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-primary">@item.Name</h5>
+                    <p class="card-text">
+                        <strong>SĐT:</strong> @item.Phone <br />
+                        <strong>Email:</strong> @item.Email <br /> @* Hiển thị thêm Email *@
+                        <strong>Địa chỉ:</strong> @item.Adress
+                    </p>
+                    <a asp-action="EditAddress" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Sửa</a>
+                    <a asp-action="DeleteAddress" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Xóa</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,15 @@
+﻿@model Bookstore.Models.User
+
+<h2>Thông tin tài khoản</h2>
+<div>
+    <p><strong>Họ tên:</strong> @Model.Name</p> <p><strong>Email:</strong> @Model.Email</p> <p><strong>Số điện thoại:</strong> @Model.Phone</p>
+</div>
+
+<h3>Sổ địa chỉ giao hàng</h3>
+<ul>
+    @foreach (var info in Model.Deliveryinformations) // [cite: 88]
+    {
+        <li>@info.Adress - @info.Phone</li>
+    }
+</ul>
+<a class="btn btn-warning" asp-action="EditProfile">Chỉnh sửa thông tin</a>

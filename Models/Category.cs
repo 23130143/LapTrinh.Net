@@ -1,11 +1,19 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
-namespace Bookstore.Models
+namespace Bookstore.Models;
+
+public partial class Category
 {
-    public class Category
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = "";
-        public List<Book> Books { get; set; } = new();
-    }
+    public int CategoryId { get; set; }
+
+    public string Name { get; set; } = null!;
+
+    public int? CategoryTypeId { get; set; }
+
+    public int? Level { get; set; }
+
+    public virtual Categorytype? CategoryType { get; set; }
+
+    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }

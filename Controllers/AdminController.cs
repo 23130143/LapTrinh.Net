@@ -1,39 +1,30 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Bookstore.Data;
 using Bookstore.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace Bookstore.Controllers
 {
-    [Authorize(Roles = "Admin")] // Chỉ tài khoản có Role là Admin mới vào được
+    [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly QuanlybansachContext _context;
+        // DANH SÁCH GIẢ (KHÔNG DB)
+        private static List<User> Users = FakeData.Users;
 
-        public AdminController(QuanlybansachContext context)
-        {
-            _context = context;
-        }
-
-        // Trang hiển thị danh sách người dùng
         public IActionResult ManageUsers()
         {
-            var users = _context.Users.ToList();
-            return View(users);
+            return View(Users);
         }
 
-        // Xử lý thay đổi Role
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateRole(int userId, string newRole)
+        public IActionResult UpdateRole(int userId, string newRole)
         {
-            var user = await _context.Users.FindAsync(userId);
+            var user = Users.FirstOrDefault(u => u.Id == userId);
             if (user != null)
             {
                 user.Role = newRole;
-                _context.Update(user);
-                await _context.SaveChangesAsync();
                 TempData["Message"] = "Cập nhật quyền hạn thành công!";
             }
             return RedirectToAction("ManageUsers");

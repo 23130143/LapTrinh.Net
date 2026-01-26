@@ -1,0 +1,345 @@
+@*
+    ==========================================================================
+    TRANG CHI TIẾT ĐƠN HÀNG
+    ==========================================================================
+    Mục đích: Hiển thị chi tiết 1 đơn hàng cụ thể và cho phép cập nhật trạng thái
+    Model: Order - Một đơn hàng từ database
+    ==========================================================================
+*@
+
+@model Order
+@{
+    ViewData["Title"] = "Chi Tiết Đơn Hàng";
+}
+
+<div class="container-fluid mt-4">
+    
+    @* HEADER *@
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2>📋 Chi Tiết Đơn Hàng #@Model.Id</h2>
+        </div>
+        <div class="col-md-6 text-end">
+            @* Nút quay lại danh sách đơn hàng *@
+            <a href="@Url.Action("Orders", "AdminDashboard")" class="btn btn-secondary">
+                ← Quay Lại
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        
+        @* ===== PHẦN BÊN TRÁI: THÔNG TIN ĐƠN HÀNG ===== *@
+        <div class="col-md-8">
+            
+            @* CARD 1: THÔNG TIN ĐƠN HÀNG *@
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">📦 Thông Tin Đơn Hàng</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <strong>Mã Đơn Hàng:</strong>
+                            <p class="mb-0">#@Model.Id</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Ngày Đặt:</strong>
+                            <p class="mb-0">@Model.CreateDate?.ToString("dd/MM/yyyy HH:mm")</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Tổng Tiền:</strong>
+                            <p class="mb-0 text-success fs-5">
+                                <strong>@(Model.TotalAmount?.ToString("N0")) VND</strong>
+                            </p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <strong>Trạng Thái:</strong>
+                            <p class="mb-0">
+                                @* Hiển thị badge tùy theo trạng thái *@
+                                @if (Model.Status == "Pending")
+                                {
+                                    <span class="badge bg-warning text-dark fs-6">⏳ Chờ Xử Lý</span>
+                                }
+                                else if (Model.Status == "Confirmed")
+                                {
+                                    <span class="badge bg-info fs-6">✅ Đã Xác Nhận</span>
+                                }
+                                else if (Model.Status == "Shipping")
+                                {
+                                    <span class="badge bg-primary fs-6">🚚 Đang Giao</span>
+                                }
+                                else if (Model.Status == "Delivered")
+                                {
+                                    <span class="badge bg-success fs-6">✔️ Đã Giao</span>
+                                }
+                                else if (Model.Status == "Cancelled")
+                                {
+                                    <span class="badge bg-danger fs-6">❌ Đã Hủy</span>
+                                }
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @* CARD 2: THÔNG TIN GIAO HÀNG *@
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">🏠 Thông Tin Giao Hàng</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.DeliveryInformation != null)
+                    {
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <strong>Người Nhận:</strong>
+                                <p class="mb-0">@Model.DeliveryInformation.Name</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong>Số Điện Thoại:</strong>
+                                <p class="mb-0">@Model.DeliveryInformation.Phone</p>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <strong>Địa Chỉ:</strong>
+                                <p class="mb-0">@Model.DeliveryInformation.Adress</p>
+                            </div>
+                            <div class="col-md-12">
+                                <strong>Email:</strong>
+                                <p class="mb-0">@Model.DeliveryInformation.Email</p>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Không có thông tin giao hàng</p>
+                    }
+                </div>
+            </div>
+
+            @* CARD 3: CHI TIẾT SẢN PHẨM *@
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">📦 Sản Phẩm Trong Đơn</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.Orderdetails != null && Model.Orderdetails.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>STT</th>
+                                        <th>Tên Sản Phẩm</th>
+                                        <th>Đơn Giá</th>
+                                        <th>Số Lượng</th>
+                                        <th>Thành Tiền</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @{
+                                        int stt = 1;
+                                    }
+                                    
+                                    @* Duyệt qua từng chi tiết đơn hàng *@
+                                    @foreach (var detail in Model.Orderdetails)
+                                    {
+                                        <tr>
+                                            @* Cột STT *@
+                                            <td>@stt</td>
+                                            
+                                            @* Cột Tên sản phẩm *@
+                                            <td>
+                                                @if (detail.Product != null)
+                                                {
+                                                    @detail.Product.Name
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">N/A</span>
+                                                }
+                                            </td>
+                                            
+                                            @* 
+                                                Cột Đơn giá 
+                                                Lưu ý: Orderdetail không có UnitPrice trong database
+                                                Sử dụng Product.Price thay thế
+                                            *@
+                                            <td>
+                                                @if (detail.Product != null)
+                                                {
+                                                    <text>@(detail.Product.Price?.ToString("N0")) VND</text>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">-</span>
+                                                }
+                                            </td>
+                                            
+                                            @* Cột Số lượng *@
+                                            <td class="text-center">@detail.Quantity</td>
+                                            
+                                            @* 
+                                                Cột Thành tiền = Đơn giá × Số lượng 
+                                            *@
+                                            <td class="text-end">
+                                                @{
+                                                    decimal donGia = detail.Product?.Price ?? 0;
+                                                    int soLuong = detail.Quantity ?? 0;
+                                                    decimal thanhTien = donGia * soLuong;
+                                                }
+                                                <strong>@(thanhTien.ToString("N0")) VND</strong>
+                                            </td>
+                                        </tr>
+                                        
+                                        stt++;
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-secondary">
+                                        <td colspan="4" class="text-end">
+                                            <strong>TỔNG CỘNG:</strong>
+                                        </td>
+                                        <td class="text-end">
+                                            <strong class="text-success fs-5">
+                                                @(Model.TotalAmount?.ToString("N0")) VND
+                                            </strong>
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Đơn hàng không có sản phẩm</p>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* ===== PHẦN BÊN PHẢI: CẬP NHẬT TRẠNG THÁI ===== *@
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">⚙️ Cập Nhật Trạng Thái</h5>
+                </div>
+                <div class="card-body">
+                    
+                    @* FORM CẬP NHẬT TRẠNG THÁI *@
+                    @using (Html.BeginForm("UpdateOrderStatus", "AdminDashboard", FormMethod.Post, new { @class = "d-grid gap-3" }))
+                    {
+                        @* Token bảo mật - Ngăn chặn CSRF attack *@
+                        @Html.AntiForgeryToken()
+                        
+                        @* Hidden input chứa OrderId - Không hiển thị nhưng được gửi kèm form *@
+                        <input type="hidden" name="orderId" value="@Model.Id" />
+                        
+                        @* CÁC NÚT CẬP NHẬT TRẠNG THÁI *@
+                        
+                        @* Nếu đơn đang Pending - Hiện nút Xác nhận *@
+                        @if (Model.Status == "Pending")
+                        {
+                            <button type="submit" name="status" value="Confirmed" class="btn btn-info btn-lg">
+                                ✅ Xác Nhận Đơn
+                            </button>
+                        }
+                        
+                        @* Nếu đơn đã Confirmed - Hiện nút Chuyển sang giao hàng *@
+                        @if (Model.Status == "Confirmed")
+                        {
+                            <button type="submit" name="status" value="Shipping" class="btn btn-primary btn-lg">
+                                🚚 Chuyển Sang Giao Hàng
+                            </button>
+                        }
+                        
+                        @* Nếu đơn đang Shipping - Hiện nút Đã giao thành công *@
+                        @if (Model.Status == "Shipping")
+                        {
+                            <button type="submit" name="status" value="Delivered" class="btn btn-success btn-lg">
+                                ✔️ Đã Giao Thành Công
+                            </button>
+                        }
+                        
+                        @* Luôn hiện nút Hủy đơn (trừ khi đã giao hoặc đã hủy) *@
+                        @if (Model.Status != "Cancelled" && Model.Status != "Delivered")
+                        {
+                            <button type="submit" name="status" value="Cancelled" 
+                                    class="btn btn-danger btn-lg"
+                                    onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?')">
+                                ❌ Hủy Đơn Hàng
+                            </button>
+                        }
+                    }
+                    
+                    @* HƯỚNG DẪN *@
+                    <hr />
+                    <h6 class="text-muted">📌 Quy Trình Xử Lý:</h6>
+                    <ol class="small text-muted">
+                        <li><strong>Chờ xử lý</strong> → Xác nhận đơn</li>
+                        <li><strong>Đã xác nhận</strong> → Chuyển sang giao hàng</li>
+                        <li><strong>Đang giao</strong> → Đã giao thành công</li>
+                    </ol>
+                    
+                    <div class="alert alert-info small" role="alert">
+                        💡 <strong>Lưu ý:</strong> Đơn hàng đã giao hoặc đã hủy không thể thay đổi trạng thái.
+                    </div>
+                </div>
+            </div>
+
+            @* THÔNG BÁO SUCCESS *@
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success mt-3" role="alert">
+                    ✅ @TempData["Success"]
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@*
+    ==========================================================================
+    GIẢI THÍCH CODE CHO SINH VIÊN:
+    ==========================================================================
+    
+    1. @model Order
+       - Khai báo kiểu dữ liệu: nhận 1 đơn hàng (không phải List)
+    
+    2. @Model.DeliveryInformation
+       - Truy cập thông tin giao hàng của đơn
+       - Đã Include() trong Controller nên không null
+    
+    3. @Model.Orderdetails
+       - Danh sách sản phẩm trong đơn hàng
+       - Mỗi phần tử là một Orderdetail
+    
+    4. detail.Product.Price
+       - Orderdetail không có UnitPrice trong database
+       - Phải truy cập qua detail.Product.Price
+    
+    5. @(expression)
+       - Dấu ngoặc () giúp Razor hiểu rõ phạm vi expression
+       - Tránh lỗi khi có text tiếp theo sau expression
+    
+    6. <text>...</text>
+       - Dùng để output text thuần trong code block Razor
+       - Giúp tránh lỗi syntax khi có ký tự đặc biệt
+    
+    7. @using (Html.BeginForm(...))
+       - Tạo form HTML
+       - Tham số 1: Action name
+       - Tham số 2: Controller name
+       - Tham số 3: Phương thức POST
+    
+    8. @Html.AntiForgeryToken()
+       - Token bảo mật chống CSRF attack
+       - ASP.NET Core tự động kiểm tra token
+    
+    9. onclick="return confirm(...)"
+       - Hiện hộp thoại xác nhận
+       - return false → Không submit
+       - return true → Submit form
+    
+    ==========================================================================
+*@

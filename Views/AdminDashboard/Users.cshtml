@@ -1,0 +1,134 @@
+@*
+    ==========================================================================
+    TRANG QUẢN LÝ NGƯỜI DÙNG
+    ==========================================================================
+    Mục đích: Hiển thị danh sách người dùng trong hệ thống
+    Model: List<User> - Danh sách người dùng từ database
+    ==========================================================================
+*@
+
+@model List<User>
+@{
+    ViewData["Title"] = "Quản Lý Người Dùng";
+}
+
+<div class="container-fluid mt-4">
+    
+    @* HEADER *@
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2>👥 Quản Lý Người Dùng</h2>
+            <p class="text-muted">Danh sách tất cả người dùng trong hệ thống</p>
+        </div>
+        <div class="col-md-6 text-end">
+            @* Tổng số người dùng *@
+            <span class="badge bg-primary fs-6">
+                Tổng: @Model.Count() người dùng
+            </span>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+            
+            @* Kiểm tra nếu có người dùng *@
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên</th>
+                                <th>Email</th>
+                                <th>Số Điện Thoại</th>
+                                <th>Vai Trò</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @* Duyệt qua từng người dùng *@
+                            @foreach (var user in Model)
+                            {
+                                <tr>
+                                    @* Cột ID *@
+                                    <td>@user.Id</td>
+                                    
+                                    @* Cột Tên *@
+                                    <td><strong>@user.Name</strong></td>
+                                    
+                                    @* Cột Email *@
+                                    <td>📧 @user.Email</td>
+                                    
+                                    @* Cột Số điện thoại *@
+                                    <td>📱 @user.Phone</td>
+                                    
+                                    @* Cột Vai trò - Hiển thị badge màu sắc *@
+                                    <td>
+                                        @if (user.Role == "Admin")
+                                        {
+                                            @* Badge đỏ cho Admin *@
+                                            <span class="badge bg-danger">🛡️ Admin</span>
+                                        }
+                                        else if (user.Role == "Customer")
+                                        {
+                                            @* Badge xanh cho Customer *@
+                                            <span class="badge bg-success">👤 Customer</span>
+                                        }
+                                        else
+                                        {
+                                            @* Badge xám cho vai trò khác *@
+                                            <span class="badge bg-secondary">@user.Role</span>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                @* Không có người dùng *@
+                <div class="text-center py-5">
+                    <p class="text-muted">Chưa có người dùng nào</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@*
+    ==========================================================================
+    GIẢI THÍCH CODE CHO SINH VIÊN:
+    ==========================================================================
+    
+    1. @model List<User>
+       - Khai báo kiểu dữ liệu: danh sách người dùng
+    
+    2. @user.Role
+       - Vai trò của người dùng: "Admin" hoặc "Customer"
+    
+    3. KHÔNG hiển thị Password
+       - Mật khẩu đã mã hóa BCrypt
+       - KHÔNG BAO GIỜ hiển thị password (bảo mật)
+       - Ngay cả Admin cũng không thấy được
+    
+    4. Badge màu sắc
+       - bg-danger (đỏ): Admin - quyền cao nhất
+       - bg-success (xanh): Customer - người dùng thường
+       - bg-secondary (xám): Vai trò khác (nếu có)
+    
+    BẢO MẬT:
+    - Trang này CHỈ Admin truy cập
+    - Controller có [Authorize(Roles = "Admin")]
+    - Không hiển thị mật khẩu
+    
+    CÁC TÍNH NĂNG CÓ THỂ MỞ RỘNG:
+    - Thêm nút "Đổi vai trò" (Customer ↔ Admin)
+    - Thêm nút "Xem đơn hàng của user"
+    - Thêm nút "Khóa/Mở khóa tài khoản"
+    - Thêm tìm kiếm theo tên/email
+    - Thêm filter theo vai trò
+    
+    ==========================================================================
+*@

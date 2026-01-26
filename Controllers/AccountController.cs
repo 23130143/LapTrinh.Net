@@ -1,4 +1,4 @@
-﻿using BCrypt.Net;
+﻿
 using Bookstore.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -18,7 +18,9 @@ namespace Bookstore.Controllers
             _context = context;
         }
 
+        // ===================================================================
         // ĐĂNG NHẬP
+        // ===================================================================
 
         [HttpGet]
         public IActionResult Login() => View();
@@ -30,16 +32,15 @@ namespace Bookstore.Controllers
             {
                 var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
 
-                // Kiểm tra mật khẩu (BCrypt sẽ tự xử lý salt nội bộ)
-                if (user != null && BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
+                // Kiểm tra Email và Password (Plain Text - không mã hóa)
+                if (user != null && user.Password == model.Password)
                 {
                     var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, user.Name),
-                new Claim(ClaimTypes.Email, user.Email),
-                // NẠP VAI TRÒ VÀO CLAIM ĐỂ HỆ THỐNG NHẬN DIỆN
-                new Claim(ClaimTypes.Role, user.Role)
-            };
+                    {
+                        new Claim(ClaimTypes.Name, user.Name),
+                        new Claim(ClaimTypes.Email, user.Email),
+                        new Claim(ClaimTypes.Role, user.Role)
+                    };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
@@ -60,7 +61,9 @@ namespace Bookstore.Controllers
             return View(model);
         }
 
+        // ===================================================================
         // ĐĂNG KÝ
+        // ===================================================================
 
         [HttpGet]
         public IActionResult Register() => View();
@@ -71,7 +74,7 @@ namespace Bookstore.Controllers
         {
             if (ModelState.IsValid)
             {
-                // 1. Kiểm tra Email đã tồn tại chưa
+                // Kiểm tra Email đã tồn tại chưa
                 var existingUser = _context.Users.FirstOrDefault(u => u.Email == model.Email);
                 if (existingUser != null)
                 {
@@ -79,17 +82,14 @@ namespace Bookstore.Controllers
                     return View(model);
                 }
 
-                // 2. Mã hóa mật khẩu bằng BCrypt
-                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
-
-                // 3. Tạo thực thể User mới
+                // Tạo User mới với password plain text
                 var newUser = new User
                 {
                     Name = model.Name,
                     Email = model.Email,
                     Phone = model.Phone,
-                    Password = hashedPassword, // Lưu mật khẩu đã mã hóa
-                    Role = "Customer"          // Mặc định là khách hàng
+                    Password = model.Password,  // Lưu plain text
+                    Role = "Customer"           // Mặc định là khách hàng
                 };
 
                 _context.Users.Add(newUser);
@@ -101,7 +101,9 @@ namespace Bookstore.Controllers
             return View(model);
         }
 
+        // ===================================================================
         // ĐĂNG XUẤT
+        // ===================================================================
 
         public async Task<IActionResult> Logout()
         {
@@ -109,7 +111,9 @@ namespace Bookstore.Controllers
             return RedirectToAction("Login");
         }
 
+        // ===================================================================
         // TỪ CHỐI TRUY CẬP
+        // ===================================================================
 
         [HttpGet]
         public IActionResult AccessDenied()
@@ -117,14 +121,14 @@ namespace Bookstore.Controllers
             return View();
         }
 
-        // QUẢN LÝ TÀI KHOẢN
+        // ===================================================================
+        // HỒ SƠ CÁ NHÂN
+        // ===================================================================
+
         [Authorize]
         public IActionResult Profile()
         {
-            // Lấy Email của người đang đăng nhập từ Claim
             var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
-
-            // Truy vấn thông tin User kèm theo danh sách địa chỉ giao hàng
             var userProfile = _context.Users
                 .Include(u => u.Deliveryinformations)
                 .FirstOrDefault(u => u.Email == userEmail);
@@ -134,7 +138,10 @@ namespace Bookstore.Controllers
             return View(userProfile);
         }
 
+        // ===================================================================
         // CHỈNH SỬA HỒ SƠ
+        // ===================================================================
+
         [HttpGet]
         [Authorize]
         public IActionResult EditProfile()
@@ -157,9 +164,8 @@ namespace Bookstore.Controllers
             {
                 user.Name = model.Name;
                 user.Phone = model.Phone;
-        // Không cho phép đổi Email ở đây nếu bạn dùng Email làm định danh
-        
-        _context.Update(user);
+
+                _context.Update(user);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Cập nhật thông tin thành công!";
                 return RedirectToAction("Profile");
@@ -167,7 +173,10 @@ namespace Bookstore.Controllers
             return View(model);
         }
 
+        // ===================================================================
         // ĐỔI MẬT KHẨU
+        // ===================================================================
+
         [HttpGet]
         [Authorize]
         public IActionResult ChangePassword() => View();
@@ -179,17 +188,16 @@ namespace Bookstore.Controllers
         {
             if (ModelState.IsValid)
             {
-                // 1. Lấy Email người dùng hiện tại từ Claims
-                var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
                 var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
 
                 if (user != null)
                 {
-                    // 2. Kiểm tra mật khẩu cũ có khớp với mật khẩu đã băm trong DB không
-                    if (BCrypt.Net.BCrypt.Verify(model.OldPassword, user.Password))
+                    // Kiểm tra mật khẩu cũ (plain text)
+                    if (user.Password == model.OldPassword)
                     {
-                        // 3. Nếu đúng, băm mật khẩu mới và lưu lại
-                        user.Password = BCrypt.Net.BCrypt.HashPassword(model.NewPassword);
+                        // Lưu mật khẩu mới (plain text)
+                        user.Password = model.NewPassword;
                         _context.Update(user);
                         await _context.SaveChangesAsync();
 
@@ -205,13 +213,14 @@ namespace Bookstore.Controllers
             return View(model);
         }
 
+        // ===================================================================
+        // QUẢN LÝ ĐỊA CHỈ GIAO HÀNG
+        // ===================================================================
 
-
-        // HIỂN THỊ DANH SÁCH
         [Authorize]
         public IActionResult Addresses()
         {
-            var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
             if (user == null) return NotFound();
 
@@ -221,24 +230,22 @@ namespace Bookstore.Controllers
             return View(addresses);
         }
 
-        // FORM THÊM MỚI (GET)
         [HttpGet]
         [Authorize]
         public IActionResult AddAddress() => View();
 
-        // XỬ LÝ LƯU THÊM MỚI (POST)
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddAddress(Deliveryinformation model)
         {
-            var userEmail = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value;
+            var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
 
             if (user != null)
             {
-                model.UserId = user.Id; // QUAN TRỌNG: Gán ID người dùng
-                _context.Deliveryinformations.Add(model); // Phải dùng .Add cho thêm mới
+                model.UserId = user.Id;
+                _context.Deliveryinformations.Add(model);
                 await _context.SaveChangesAsync();
                 TempData["Success"] = "Thêm địa chỉ giao hàng thành công!";
                 return RedirectToAction("Addresses");
@@ -246,7 +253,6 @@ namespace Bookstore.Controllers
             return View(model);
         }
 
-        // FORM CHỈNH SỬA (GET)
         [HttpGet]
         [Authorize]
         public async Task<IActionResult> EditAddress(int id)
@@ -256,7 +262,6 @@ namespace Bookstore.Controllers
             return View(address);
         }
 
-        // XỬ LÝ LƯU CHỈNH SỬA (POST)
         [HttpPost]
         [Authorize]
         [ValidateAntiForgeryToken]
@@ -272,7 +277,6 @@ namespace Bookstore.Controllers
             return View(model);
         }
 
-        // XÓA (DELETE)
         [Authorize]
         public async Task<IActionResult> DeleteAddress(int id)
         {

@@ -12,7 +12,16 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<QuanlybansachContext>(options =>
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
-// Cấu hình Cookie Authentication
+// Thêm dịch vụ Session vào Container
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Giỏ hàng tồn tại trong 30p
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// Cấu hình Cookie (authentication) - MUST register before builder.Build()
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
@@ -36,10 +45,13 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+// Session must be enabled before MVC endpoints; place it after routing and before authentication/authorization
+app.UseSession();
+
 // Thứ tự bắt buộc: Authentication TRƯỚC Authorization
 app.UseAuthentication();
 app.UseAuthorization();
-
+    
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

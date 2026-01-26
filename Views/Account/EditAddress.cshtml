@@ -1,39 +1,59 @@
 ﻿@model Bookstore.Models.Deliveryinformation
+@{
+    ViewData["Title"] = "Chỉnh sửa địa chỉ";
+}
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6 border p-4 shadow-sm">
-            <h2 class="text-center mb-4">Chỉnh sửa địa chỉ giao hàng</h2>
-            <form asp-action="EditAddress" method="post">
-                @* Lưu trữ ID và UserId ẩn để EF nhận diện bản ghi cũ *@
-                <input type="hidden" asp-for="Id" />
-                <input type="hidden" asp-for="UserId" />
+<div id="content-page" class="content-page">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="iq-card shadow-sm">
+                    @* PHẦN TIÊU ĐỀ *@
+                    <div class="iq-card-header d-flex justify-content-between">
+                        <div class="iq-header-title">
+                            <h4 class="card-title text-primary">Chỉnh sửa địa chỉ giao hàng</h4>
+                        </div>
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Tên người nhận</label>
-                    <input asp-for="Name" class="form-control" required />
+                    @* PHẦN NỘI DUNG FORM *@
+                    <div class="iq-card-body">
+                        <form asp-action="EditAddress" method="post">
+                            <input type="hidden" asp-for="Id" />
+                            <input type="hidden" asp-for="UserId" />
+
+                            <div class="row">
+                                <div class="form-group col-md-6">
+                                    <label class="font-weight-bold" asp-for="Name">Tên người nhận</label>
+                                    <input asp-for="Name" class="form-control" style="color:#000; font-weight:500;" required />
+                                    <span asp-validation-for="Name" class="text-danger small"></span>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label class="font-weight-bold" asp-for="Phone">Số điện thoại</label>
+                                    <input asp-for="Phone" class="form-control" style="color:#000; font-weight:500;" required />
+                                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold" asp-for="Email">Email liên hệ</label>
+                                <input asp-for="Email" type="email" class="form-control" style="color:#000; font-weight:500;" required />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="font-weight-bold" asp-for="Adress">Địa chỉ chi tiết</label>
+                                <textarea asp-for="Adress" class="form-control" rows="3" style="color:#000; font-weight:500;" required></textarea>
+                                <span asp-validation-for="Adress" class="text-danger small"></span>
+                            </div>
+
+                            <div class="d-flex gap-3 mt-4">
+                                <button type="submit" class="btn btn-primary px-5">Cập nhật</button>
+                                <a asp-action="Addresses" class="btn btn-outline-secondary ml-2">Hủy bỏ</a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Số điện thoại</label>
-                    <input asp-for="Phone" class="form-control" required />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input asp-for="Email" type="email" class="form-control" required />
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Địa chỉ chi tiết</label>
-                    <textarea asp-for="Adress" class="form-control" rows="3" required></textarea>
-                </div>
-
-                <div class="d-flex gap-2">
-                    <button type="submit" class="btn btn-primary w-100">Cập nhật</button>
-                    <a asp-action="Addresses" class="btn btn-outline-secondary w-100">Hủy</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>

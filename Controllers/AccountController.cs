@@ -242,12 +242,13 @@ namespace Bookstore.Controllers
             var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
             var user = _context.Users.FirstOrDefault(u => u.Email == userEmail);
 
-            if (user != null)
+            if (user != null && ModelState.IsValid)
             {
                 model.UserId = user.Id;
                 _context.Deliveryinformations.Add(model);
                 await _context.SaveChangesAsync();
-                TempData["Success"] = "Thêm địa chỉ giao hàng thành công!";
+
+                TempData["Success"] = "Thêm địa chỉ thành công!";
                 return RedirectToAction("Addresses");
             }
             return View(model);

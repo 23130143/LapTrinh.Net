@@ -1,0 +1,182 @@
+@* 
+    ==========================================================================
+    TRANG QUẢN LÝ ĐƠN HÀNG 
+    ==========================================================================
+    Mục đích: Hiển thị danh sách đơn hàng, có thể lọc theo trạng thái
+    Model: List<Order> - Danh sách các đơn hàng từ database
+    ==========================================================================
+*@
+
+@model List<Order>
+@{
+    ViewData["Title"] = "Quản Lý Đơn Hàng";
+}
+
+<div class="container-fluid mt-4">
+    
+    @* TIÊU ĐỀ *@
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h2>📦 Qu ản Lý Đơn Hàng</h2>
+            <p class="text-muted">Danh sách tất cả đơn hàng trong hệ thống</p>
+        </div>
+        <div class="col-md-6 text-end">
+            @* Hiển thị tổng số đơn hàng *@
+            <span class="badge bg-primary fs-6">
+                Tổng: @Model.Count() đơn hàng
+            </span>
+        </div>
+    </div>
+
+    @* PHẦN LỌC THEO TRẠNG THÁI *@
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="btn-group" role="group">
+                @* Nút lọc Tất cả - không có parameter *@
+                <a href="@Url.Action("Orders", "AdminDashboard")" class="btn btn-outline-secondary">Tất Cả</a>
+                
+                @* Nút lọc Chờ xử lý - truyền status=Pending *@
+                <a href="@Url.Action("Orders", "AdminDashboard", new { status = "Pending" })" class="btn btn-outline-warning">⏳ Chờ Xử Lý</a>
+                
+                <a href="@Url.Action("Orders", "AdminDashboard", new { status = "Confirmed" })" class="btn btn-outline-info">✅ Đã Xác Nhận</a>
+                
+                <a href="@Url.Action("Orders", "AdminDashboard", new { status = "Shipping" })" class="btn btn-outline-primary">🚚 Đang Giao</a>
+                
+                <a href="@Url.Action("Orders", "AdminDashboard", new { status = "Delivered" })" class="btn btn-outline-success">✔️ Đã Giao</a>
+                
+                <a href="@Url.Action("Orders", "AdminDashboard", new { status = "Cancelled" })" class="btn btn-outline-danger">❌ Đã Hủy</a>
+            </div>
+        </div>
+    </div>
+
+    @* BẢNG DANH SÁCH ĐƠN HÀNG *@
+    <div class="card">
+        <div class="card-body">
+            
+            @* Kiểm tra nếu có đơn hàng *@
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Mã ĐH</th>
+                                <th>Khách Hàng</th>
+                                <th>Số Điện Thoại</th>
+                                <th>Ngày Đặt</th>
+                                <th>Tổng Tiền</th>
+                                <th>Trạng Thái</th>
+                                <th>Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @* Vòng lặp foreach: Duyệt qua từng đơn hàng trong Model *@
+                            @foreach (var order in Model)
+                            {
+                                <tr>
+                                    @* Cột Mã đơn hàng *@
+                                    <td><strong>#@order.Id</strong></td>
+                                    
+                                    @* Cột Tên khách hàng *@
+                                    <td>@order.DeliveryInformation?.Name</td>
+                                    
+                                    @* Cột Số điện thoại *@
+                                    <td>@order.DeliveryInformation?.Phone</td>
+                                    
+                                    @* Cột Ngày đặt - Format: 26/01/2026 15:30 *@
+                                    <td>@order.CreateDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                                    
+                                    @* Cột Tổng tiền - Format với dấu phẩy: 1,500,000 đ *@
+                                    <td>
+                                        <strong class="text-success">
+                                            @order.TotalAmount?.ToString("N0") đ
+                                        </strong>
+                                    </td>
+                                    
+                                    @* Cột Trạng thái - Hiển thị badge màu sắc *@
+                                    <td>
+                                        @if (order.Status == "Pending")
+                                        {
+                                            <span class="badge bg-warning text-dark">⏳ Chờ xử lý</span>
+                                        }
+                                        else if (order.Status == "Confirmed")
+                                        {
+                                            <span class="badge bg-info">✅ Đã xác nhận</span>
+                                        }
+                                        else if (order.Status == "Shipping")
+                                        {
+                                            <span class="badge bg-primary">🚚 Đang giao</span>
+                                        }
+                                        else if (order.Status == "Delivered")
+                                        {
+                                            <span class="badge bg-success">✔️ Đã giao</span>
+                                        }
+                                        else if (order.Status == "Cancelled")
+                                        {
+                                            <span class="badge bg-danger">❌ Đã hủy</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-secondary">@order.Status</span>
+                                        }
+                                    </td>
+                                    
+                                    @* Cột Thao tác - Nút xem chi tiết *@
+                                    <td>
+                                        @* Link đến /AdminDashboard/OrderDetails/{orderId} *@
+                                        <a href="@Url.Action("OrderDetails", "AdminDashboard", new { id = order.Id })" 
+                                           class="btn btn-sm btn-outline-primary">
+                                            Chi Tiết
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                @* Hiển thị khi không có đơn hàng *@
+                <div class="text-center py-5">
+                    <p class="text-muted">Không có đơn hàng nào</p>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@*
+    ==========================================================================
+    GIẢI THÍCH CODE CHO SINH VIÊN:
+    ==========================================================================
+    
+    1. @model List<Order>
+       - Khai báo kiểu dữ liệu nhận từ Controller
+       - Model ở đây là danh sách các đơn hàng
+    
+    2. @Model.Count()
+       - Đếm số phần tử trong danh sách
+    
+    3. @Url.Action("ActionName", "ControllerName", new { parameters })
+       - Tạo URL đến action cụ thể
+       - Ví dụ: Url.Action("Orders", "AdminDashboard", new { status = "Pending" })
+       - Kết quả: /AdminDashboard/Orders?status=Pending
+    
+    4. @foreach (var order in Model)
+       - Vòng lặp duyệt qua từng phần tử trong Model
+       - order là một đơn hàng
+    
+    5. @order.DeliveryInformation?.Name
+       - Dấu ? là null-conditional operator
+       - Nếu DeliveryInformation null → không lỗi, hiển thị trống
+    
+    6. ToString("dd/MM/yyyy HH:mm")
+       - Format ngày giờ: 26/01/2026 15:30
+    
+    7. ToString("N0")
+       - Format số với dấu phẩy, 0 số thập phân
+       - 1500000 → 1,500,000
+    
+    ========================================================================== 
+*@

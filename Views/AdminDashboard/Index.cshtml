@@ -1,0 +1,252 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<!-- Tiêu đề trang -->
+<div class="container-fluid mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>📊 Dashboard Quản Trị</h2>
+            <p class="text-muted">Tổng quan về doanh thu và đơn hàng</p>
+        </div>
+    </div>
+
+    <!-- ===== PHẦN 1: THỐNG KÊ DOANH THU ===== -->
+    <div class="row mb-4">
+        <!-- Doanh thu hôm nay -->
+        <div class="col-md-4">
+            <div class="card text-white bg-primary">
+                <div class="card-body">
+                    <h5 class="card-title">💰 Doanh Thu Hôm Nay</h5>
+                    <h2 class="mb-0">@Model.TodayRevenue.ToString("N0") đ</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Doanh thu tháng này -->
+        <div class="col-md-4">
+            <div class="card text-white bg-success">
+                <div class="card-body">
+                    <h5 class="card-title">📅 Doanh Thu Tháng Này</h5>
+                    <h2 class="mb-0">@Model.MonthRevenue.ToString("N0") đ</h2>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tổng doanh thu -->
+        <div class="col-md-4">
+            <div class="card text-white bg-info">
+                <div class="card-body">
+                    <h5 class="card-title">💎 Tổng Doanh Thu</h5>
+                    <h2 class="mb-0">@Model.TotalRevenue.ToString("N0") đ</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PHẦN 2: THỐNG KÊ ĐƠN HÀNG ===== -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Chờ Xử Lý</h6>
+                    <h3 class="text-warning">@Model.PendingOrders</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Đã Xác Nhận</h6>
+                    <h3 class="text-info">@Model.ConfirmedOrders</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-primary">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Đang Giao</h6>
+                    <h3 class="text-primary">@Model.ShippingOrders</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h6 class="text-muted">Đã Giao</h6>
+                    <h3 class="text-success">@Model.DeliveredOrders</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PHẦN 3: BIỂU ĐỒ DOANH THU 7 NGÀY ===== -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5>📈 Doanh Thu 7 Ngày Gần Nhất</h5>
+                </div>
+                <div class="card-body">
+                    <!-- Biểu đồ sẽ được vẽ ở đây bằng Chart.js -->
+                    <canvas id="revenueChart" height="100"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thống kê tổng quan -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5>📊 Thống Kê Tổng Quan</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Tổng Đơn Hàng:</strong>
+                        <span class="float-end badge bg-primary">@Model.TotalOrders</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Tổng Sản Phẩm:</strong>
+                        <span class="float-end badge bg-info">@Model.TotalProducts</span>
+                    </div>
+                    <div class="mb-3">
+                        <strong>Tổng Khách Hàng:</strong>
+                        <span class="float-end badge bg-success">@Model.TotalCustomers</span>
+                    </div>
+                    <div>
+                        <strong>Đơn Đã Hủy:</strong>
+                        <span class="float-end badge bg-danger">@Model.CancelledOrders</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== PHẦN 4: ĐƠN HÀNG MỚI NHẤT ===== -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">🛒 Đơn Hàng Mới Nhất</h5>
+                    <a href="@Url.Action("Orders", "AdminDashboard")" class="btn btn-sm btn-primary">Xem Tất Cả</a>
+                </div>
+                <div class="card-body">
+                    @if (Model.RecentOrders.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Mã ĐH</th>
+                                        <th>Khách Hàng</th>
+                                        <th>Ngày Đặt</th>
+                                        <th>Tổng Tiền</th>
+                                        <th>Trạng Thái</th>
+                                        <th>Thao Tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model.RecentOrders)
+                                    {
+                                        <tr>
+                                            <td><strong>#@order.Id</strong></td>
+                                            <td>@order.DeliveryInformation?.Name</td>
+                                            <td>@order.CreateDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                                            <td><strong>@order.TotalAmount?.ToString("N0") đ</strong></td>
+                                            <td>
+                                                @if (order.Status == "Pending")
+                                                {
+                                                    <span class="badge bg-warning">Chờ xử lý</span>
+                                                }
+                                                else if (order.Status == "Confirmed")
+                                                {
+                                                    <span class="badge bg-info">Đã xác nhận</span>
+                                                }
+                                                else if (order.Status == "Shipping")
+                                                {
+                                                    <span class="badge bg-primary">Đang giao</span>
+                                                }
+                                                else if (order.Status == "Delivered")
+                                                {
+                                                    <span class="badge bg-success">Đã giao</span>
+                                                }
+                                                else if (order.Status == "Cancelled")
+                                                {
+                                                    <span class="badge bg-danger">Đã hủy</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("OrderDetails", "AdminDashboard", new { id = order.Id })" 
+                                                   class="btn btn-sm btn-outline-primary">
+                                                    Chi Tiết
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="text-muted text-center">Chưa có đơn hàng nào</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ===== SCRIPT VẼ BIỂU ĐỒ BẰNG CHART.JS ===== -->
+@section Scripts {
+    <!-- Thư viện Chart.js để vẽ biểu đồ -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // Lấy dữ liệu từ C# Model và chuyển sang JavaScript
+        var labels = @Html.Raw(Json.Serialize(Model.Last7DaysLabels));  // Nhãn ngày (26/01, 27/01...)
+        var data = @Html.Raw(Json.Serialize(Model.Last7DaysRevenue));   // Doanh thu mỗi ngày
+
+        // Vẽ biểu đồ
+        var ctx = document.getElementById('revenueChart').getContext('2d');
+        var revenueChart = new Chart(ctx, {
+            type: 'line', // Loại biểu đồ: đường
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Doanh Thu (VNĐ)',
+                    data: data,
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4  // Làm đường cong mượt hơn
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            // Format số tiền với dấu phẩy
+                            callback: function(value) {
+                                return value.toLocaleString('vi-VN') + ' đ';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+}

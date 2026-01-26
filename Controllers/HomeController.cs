@@ -1,23 +1,35 @@
-using System.Diagnostics;
+using Bookstore.Data;
 using Bookstore.Models;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Diagnostics;
+using System.Linq;
 
 namespace Bookstore.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-
+      
         public HomeController(ILogger<HomeController> logger)
         {
             _logger = logger;
+       
         }
-
         public IActionResult Index()
         {
-            return View();
+            var books = FakeData.Books;
+            return View(books);
         }
 
+        public IActionResult Detail(int id)
+        {
+            var book = FakeData.Books.FirstOrDefault(b => b.Id == id);
+            return View(book);
+
+        }
+
+       
         public IActionResult Privacy()
         {
             return View();
@@ -29,4 +41,5 @@ namespace Bookstore.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
+    
 }

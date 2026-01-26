@@ -1,24 +1,54 @@
 ﻿@model IEnumerable<Bookstore.Models.Deliveryinformation>
+@{
+    ViewData["Title"] = "Sổ địa chỉ";
+}
 
-<h2>Địa chỉ giao hàng của tôi</h2>
-<a asp-action="AddAddress" class="btn btn-success mb-3">Thêm địa chỉ giao hàng mới</a>
-
-<div class="row">
-    @foreach (var item in Model)
-    {
-        <div class="col-md-4 mb-3">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h5 class="card-title text-primary">@item.Name</h5>
-                    <p class="card-text">
-                        <strong>SĐT:</strong> @item.Phone <br />
-                        <strong>Email:</strong> @item.Email <br /> @* Hiển thị thêm Email *@
-                        <strong>Địa chỉ:</strong> @item.Adress
-                    </p>
-                    <a asp-action="EditAddress" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Sửa</a>
-                    <a asp-action="DeleteAddress" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Xóa</a>
+<div id="content-page" class="content-page">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="iq-card">
+                    <div class="iq-card-header d-flex justify-content-between">
+                        <div class="iq-header-title">
+                            <h4 class="card-title text-primary">Sổ địa chỉ giao hàng của tôi</h4>
+                        </div>
+                        <div class="iq-card-header-toolbar d-flex align-items-center">
+                            <a asp-action="AddAddress" class="btn btn-primary btn-sm">Thêm địa chỉ mới</a>
+                        </div>
+                    </div>
+                    <div class="iq-card-body">
+                        <div class="row">
+                            @if (Model != null && Model.Any())
+                            {
+                                @foreach (var item in Model)
+                                {
+                                    <div class="col-md-6 mb-3">
+                                        <div class="border rounded p-3 position-relative shadow-sm">
+                                            <h5 class="text-dark font-weight-bold">@item.Name</h5>
+                                            <p class="mb-1"><strong>SĐT:</strong> <span class="text-primary">@item.Phone</span></p>
+                                            <p class="mb-1"><strong>Email:</strong> @item.Email</p>
+                                            <p class="mb-2"><strong>Địa chỉ:</strong> @item.Adress</p>
+                                            <div class="d-flex gap-2 mt-2">
+                                                <a asp-action="EditAddress" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning mr-2">Sửa</a>
+                                                <a asp-action="DeleteAddress" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc muốn xóa địa chỉ này?')">Xóa</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                            else
+                            {
+                                <div class="col-12 text-center py-4">
+                                    <p class="text-muted">Bạn chưa lưu địa chỉ nào.</p>
+                                </div>
+                            }
+                        </div>
+                        <div class="mt-3">
+                            <a asp-action="Profile" class="btn btn-secondary">Quay lại hồ sơ</a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    }
+    </div>
 </div>

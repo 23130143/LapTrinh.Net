@@ -3,44 +3,38 @@
     ViewData["Title"] = "Chỉnh sửa hồ sơ";
 }
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-lg-12">
-            <div class="iq-card">
-                <div class="iq-card-header d-flex justify-content-between">
-                    <div class="iq-header-title">
-                        <h4 class="card-title">Cập nhật thông tin tài khoản</h4>
+<div id="content-page" class="content-page">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="iq-card shadow-sm">
+                    <div class="iq-card-header d-flex justify-content-between">
+                        <div class="iq-header-title">
+                            <h4 class="card-title text-primary">Chỉnh sửa thông tin cá nhân</h4>
+                        </div>
                     </div>
-                </div>
-                <div class="iq-card-body">
-                    <div class="acc-edit">
+                    <div class="iq-card-body">
                         <form asp-action="EditProfile" method="post">
-                            @Html.AntiForgeryToken()
-                            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                            @* Giữ lại ID để update chính xác *@
                             <input type="hidden" asp-for="Id" />
-
-                            <div class="form-group">
-                                <label asp-for="Name">Họ tên người dùng:</label>
-                                <input asp-for="Name" class="form-control" placeholder="Nhập họ tên mới">
-                                <span asp-validation-for="Name" class="text-danger"></span>
+                            <div class="row">
+                                <div class="form-group col-sm-6">
+                                    <label asp-for="Name" class="font-weight-bold">Họ tên:</label>
+                                    <input asp-for="Name" class="form-control" style="color: #000 !important; font-weight: 500;">
+                                    <span asp-validation-for="Name" class="text-danger small"></span>
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label asp-for="Phone" class="font-weight-bold">Số điện thoại:</label>
+                                    <input asp-for="Phone" class="form-control" style="color: #000 !important; font-weight: 500;">
+                                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                                </div>
+                                <div class="form-group col-12">
+                                    <label class="text-muted">Email (Định danh - Không thể thay đổi):</label>
+                                    <input asp-for="Email" class="form-control bg-light" readonly>
+                                </div>
                             </div>
-
-                            <div class="form-group">
-                                <label asp-for="Email">Địa chỉ Email (Không được đổi):</label>
-                                <input asp-for="Email" class="form-control" readonly style="background-color: #e9ecef;">
-                            </div>
-
-                            <div class="form-group">
-                                <label asp-for="Phone">Số điện thoại:</label>
-                                <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại">
-                                <span asp-validation-for="Phone" class="text-danger"></span>
-                            </div>
-
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
-                                <a asp-action="Profile" class="btn iq-bg-danger">Hủy bỏ</a>
+                            <div class="mt-3 d-flex gap-2">
+                                <button type="submit" class="btn btn-primary px-4">Lưu thay đổi</button>
+                                <a asp-action="Profile" class="btn btn-outline-secondary ml-2">Quay lại</a>
                             </div>
                         </form>
                     </div>
@@ -49,7 +43,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}

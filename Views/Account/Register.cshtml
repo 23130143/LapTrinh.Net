@@ -3,36 +3,127 @@
     ViewData["Title"] = "Đăng ký";
 }
 
-<div class="row justify-content-center mt-5">
-    <div class="col-md-4 border p-4 shadow-sm">
-        <h2 class="text-center">Đăng ký tài khoản</h2>
-        <form asp-action="Register" method="post">
-            <div class="mb-3">
-                <label class="form-label">Họ tên</label>
-                <input asp-for="Name" class="form-control" />
-                <span asp-validation-for="Name" class="text-danger"></span>
+<section class="sign-in-page" style="padding: 10px 0 !important;">
+    <div class="container p-0">
+        <div class="row no-gutters height-self-center justify-content-center">
+            <div class="col-sm-12 col-md-10 col-lg-8 align-self-center page-content rounded">
+                <div class="row m-0 justify-content-center">
+                    <div class="col-sm-12 sign-in-page-data">
+                        @* Thêm padding-top để đảm bảo tiêu đề không bị che mất *@
+                        <div class="sign-in-from bg-primary rounded shadow-lg" style="padding: 15px 30px !important;">
+
+                            @* TIÊU ĐỀ ĐĂNG KÝ *@
+                            <h3 class="mb-1 text-center text-white font-weight-bold" style="text-transform: uppercase; letter-spacing: 1px;">Đăng Ký</h3>
+                            <p class="text-center text-white mb-3" style="font-size: 0.8rem; opacity: 0.9;">Tạo tài khoản mới để trải nghiệm dịch vụ</p>
+
+                            <form asp-action="Register" method="post" class="form-text">
+                                <div asp-validation-summary="ModelOnly" class="text-warning mb-2" style="list-style:none; font-weight:bold; font-size: 0.8rem;"></div>
+
+                                <div class="form-group text-left mb-2">
+                                    <label class="text-white small mb-1" asp-for="Name">Họ tên</label>
+                                    <input asp-for="Name" class="form-control form-control-sm custom-input" placeholder="Nhập họ và tên">
+                                    <span asp-validation-for="Name" class="text-danger-yellow"></span>
+                                </div>
+
+                                <div class="form-group text-left mb-2">
+                                    <label class="text-white small mb-1" asp-for="Email">Địa chỉ Email</label>
+                                    <input asp-for="Email" class="form-control form-control-sm custom-input" placeholder="example@gmail.com">
+                                    <span asp-validation-for="Email" class="text-danger-yellow"></span>
+                                </div>
+
+                                <div class="form-group text-left mb-2">
+                                    <label class="text-white small mb-1" asp-for="Phone">Số điện thoại</label>
+                                    <input asp-for="Phone" class="form-control form-control-sm custom-input" placeholder="0xxxxxxxxx">
+                                    <span asp-validation-for="Phone" class="text-danger-yellow"></span>
+                                </div>
+
+                                <div class="form-row mb-2">
+                                    <div class="col-md-6 mb-2 mb-md-0">
+                                        <label class="text-white small mb-1" asp-for="Password">Mật khẩu</label>
+                                        <input asp-for="Password" type="password" class="form-control form-control-sm custom-input" placeholder="******">
+                                        <span asp-validation-for="Password" class="text-danger-yellow"></span>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="text-white small mb-1" asp-for="ConfirmPassword">Xác nhận</label>
+                                        <input asp-for="ConfirmPassword" type="password" class="form-control form-control-sm custom-input" placeholder="******">
+                                        <span asp-validation-for="ConfirmPassword" class="text-danger-yellow"></span>
+                                    </div>
+                                </div>
+
+                                <div class="custom-control custom-checkbox mb-3 text-left">
+                                    <input type="checkbox" class="custom-control-input" id="customCheck1" required>
+                                    <label class="custom-control-label text-white small" for="customCheck1" style="line-height: 1.5;">Tôi đồng ý với Điều khoản sử dụng</label>
+                                </div>
+
+                                <div class="sign-info text-center">
+                                    <button type="submit" class="btn btn-white d-block w-100 mb-2 font-weight-bold" style="height: 40px;">Đăng ký</button>
+                                    <span class="text-white small">
+                                        Đã có tài khoản? <a asp-action="Login" class="text-warning font-weight-bold">Đăng nhập</a>
+                                    </span>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Số điện thoại</label>
-                <input asp-for="Phone" class="form-control" />
-                <span asp-validation-for="Phone" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Mật khẩu</label>
-                <input asp-for="Password" type="password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Xác nhận mật khẩu</label>
-                <input asp-for="ConfirmPassword" type="password" class="form-control" />
-                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button type="submit" class="btn btn-success w-100">Đăng ký</button>
-        </form>
+        </div>
     </div>
-</div>
+</section>
+
+<style>
+    /* FIX MÀU CHỮ: Đen đậm rực rỡ */
+    .custom-input {
+        color: #000000 !important;
+        background-color: #ffffff !important;
+        border: none !important;
+        font-weight: 600 !important;
+        border-radius: 5px !important;
+    }
+
+        .custom-input::placeholder {
+            color: #adb5bd !important;
+            font-weight: normal;
+        }
+
+    /* FIX LỖI TRÀN: Sử dụng tỷ lệ màn hình linh hoạt */
+    .sign-in-page {
+        min-height: 90vh !important; /* Đảm bảo trang không quá dài */
+        display: flex;
+        align-items: center;
+    }
+
+    .sign-in-from {
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    /* MÀU CẢNH BÁO LỖI: Vàng chanh để không bị lẫn với màu đỏ mặc định quá tối */
+    .text-danger-yellow {
+        color: #ff3333 !important;
+        font-weight: bold;
+        font-size: 0.75rem;
+        display: block;
+        margin-top: 2px;
+        line-height: 1.2;
+    }
+
+    /* Thu nhỏ khoảng cách form để không bị đẩy footer */
+    .form-group {
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* Đảm bảo toàn bộ nội dung hiển thị tốt trên màn hình nhỏ */
+    @@media (max-height: 800px) {
+        h3 {
+            font-size: 1.2rem !important;
+        }
+
+        .sign-in-from {
+            padding: 10px 20px !important;
+        }
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

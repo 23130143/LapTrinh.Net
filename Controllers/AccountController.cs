@@ -28,27 +28,29 @@ namespace Bookstore.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Tìm user dựa trên Email
                 var user = _context.Users.FirstOrDefault(u => u.Email == model.Email);
 
-                // Kiểm tra mật khẩu bằng BCrypt
+                // Kiểm tra mật khẩu (BCrypt sẽ tự xử lý salt nội bộ)
                 if (user != null && BCrypt.Net.BCrypt.Verify(model.Password, user.Password))
                 {
                     var claims = new List<Claim>
-                    {
-                        new Claim(ClaimTypes.Name, user.Name),
-                        new Claim(ClaimTypes.Email, user.Email),
-                        new Claim(ClaimTypes.Role, user.Role) // nạp role từ db vào claim
-                    };
+            {
+                new Claim(ClaimTypes.Name, user.Name),
+                new Claim(ClaimTypes.Email, user.Email),
+                // NẠP VAI TRÒ VÀO CLAIM ĐỂ HỆ THỐNG NHẬN DIỆN
+                new Claim(ClaimTypes.Role, user.Role)
+            };
 
                     var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
                     await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(claimsIdentity));
 
-                    // Phân quyền điều hướng
+                    // ĐIỀU HƯỚNG DỰA TRÊN VAI TRÒ
                     if (user.Role == "Admin")
+                    {
                         return RedirectToAction("Index", "AdminDashboard");
+                    }
 
                     return RedirectToAction("Index", "Home");
                 }
@@ -282,6 +284,40 @@ namespace Bookstore.Controllers
                 TempData["Success"] = "Đã xóa địa chỉ thành công!";
             }
             return RedirectToAction("Addresses");
+        }
+
+        // Giao diện trang Quên mật khẩu
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        // Xử lý gửi mail
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Bước A: Kiểm tra email có tồn tại trong DB không
+                // var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == model.Email);
+
+                // Giả sử tìm thấy user:
+                bool userExists = true; // Thay bằng logic DB của nhóm bạn
+
+                if (userExists)
+                {
+                    // Bước B: Logic gửi Email (Sử dụng MailKit hoặc một Service gửi mail)
+                    // await _emailService.SendEmailAsync(model.Email, "Reset Password", "Mã xác nhận của bạn là: 123456");
+
+                    TempData["SuccessMessage"] = "Một hướng dẫn đã được gửi đến Email của bạn.";
+                    return RedirectToAction("ForgotPassword");
+                }
+
+                ModelState.AddModelError("", "Email không tồn tại trong hệ thống.");
+            }
+            return View(model);
         }
     }
 }

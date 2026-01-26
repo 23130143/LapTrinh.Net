@@ -38,5 +38,10 @@ namespace Bookstore.Controllers
             }
             return RedirectToAction("ManageUsers");
         }
+
+        public IActionResult Books()
+        {
+            return View();
+        }
     }
 }

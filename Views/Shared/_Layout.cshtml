@@ -32,34 +32,37 @@
             <div id="sidebar-scrollbar">
                 <nav class="iq-sidebar-menu">
                     <ul id="iq-sidebar-toggle" class="iq-menu">
-                        <li class="active active-menu">
+                        <li class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Index" && ViewContext.RouteData.Values["Controller"]?.ToString() == "Home" ? "active" : "")">
                             <a asp-controller="Home" asp-action="Index" class="iq-waves-effect"><i class="las la-home iq-arrow-left"></i><span>Trang Chủ</span></a>
                         </li>
 
-                        @* CHỈ HIỂN THỊ ADMIN DASHBOARD NẾU ROLE LÀ ADMIN *@
-                        @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                        <li class="@(ViewContext.RouteData.Values["Controller"]?.ToString() == "AdminDashboard" && ViewContext.RouteData.Values["Action"]?.ToString() == "Index" ? "active" : "")">
+                            <a asp-controller="AdminDashboard" asp-action="Index" class="iq-waves-effect"><i class="las la-tachometer-alt"></i><span>Bảng Điều Khiển</span></a>
+                        </li>
+
+                        @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Admin"))
                         {
-                            <li>
-                                <a href="#pages" class="iq-waves-effect collapsed" data-toggle="collapse" aria-expanded="false"><i class="las la-file-alt iq-arrow-left"></i><span>Admin Dashboard</span><i class="ri-arrow-right-s-line iq-arrow-right"></i></a>
-                                <ul id="pages" class="iq-submenu collapse" data-parent="#iq-sidebar-toggle">
-                                    <li><a asp-controller="AdminDashboard" asp-action="Index"><i class="ri-dashboard-line"></i>Dashboard</a></li>
-                                    <li><a asp-controller="AdminBook" asp-action="Index"><i class="ri-book-2-line"></i>Quản lý sách</a></li>
-                                    <li><a asp-controller="AdminCategory" asp-action="Index"><i class="ri-list-check-2"></i>Quản lý danh mục</a></li>
-                                </ul>
+                            <li class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Categories" ? "active" : "")">
+                                <a asp-controller="AdminDashboard" asp-action="Categories" class="iq-waves-effect"><i class="ri-list-check"></i><span>Danh Mục Sách</span></a>
+                            </li>
+                            <li class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Products" ? "active" : "")">
+                                <a asp-controller="AdminDashboard" asp-action="Products" class="iq-waves-effect"><i class="ri-book-2-line"></i><span>Sách</span></a>
+                            </li>
+                            <li class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Orders" ? "active" : "")">
+                                <a asp-controller="AdminDashboard" asp-action="Orders" class="iq-waves-effect"><i class="ri-shopping-cart-2-line"></i><span>Đơn Hàng</span></a>
+                            </li>
+                            <li class="@(ViewContext.RouteData.Values["Action"]?.ToString() == "Users" ? "active" : "")">
+                                <a asp-controller="AdminDashboard" asp-action="Users" class="iq-waves-effect"><i class="ri-user-line"></i><span>Người Dùng</span></a>
                             </li>
                         }
 
-                        <li><a href="#"><i class="ri-heart-line"></i>Yêu Thích</a></li>
-                        <li><a href="#"><i class="ri-file-pdf-line"></i>Sách PDF</a></li>
-
-                        @* ĐIỀU KHIỂN NÚT LOGOUT/LOGIN *@
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <li><a asp-controller="Account" asp-action="Logout"><i class="ri-login-box-line"></i>Logout</a></li>
+                            <li><a asp-controller="Account" asp-action="Logout" class="iq-waves-effect"><i class="ri-log-out-box-line"></i><span>Đăng Xuất</span></a></li>
                         }
                         else
                         {
-                            <li><a asp-controller="Account" asp-action="Login"><i class="ri-user-line"></i>Đăng nhập</a></li>
+                            <li><a asp-controller="Account" asp-action="Login" class="iq-waves-effect"><i class="ri-login-box-line"></i><span>Đăng Nhập</span></a></li>
                         }
                     </ul>
                 </nav>
@@ -74,17 +77,20 @@
                             <div class="main-circle"><i class="las la-bars"></i></div>
                         </div>
                         <div class="iq-navbar-logo d-flex justify-content-between">
-                            <a href="index.html" class="header-logo">
-                                <img src="images/logo.png" class="img-fluid rounded-normal" alt="">
+                            <a asp-controller="AdminDashboard" asp-action="Index" class="header-logo">
+                                <img src="~/images/logo.png" class="img-fluid rounded-normal" alt="">
                                 <div class="logo-title">
-                                    <span class="text-primary text-uppercase">img01</span>
+                                    <span class="text-primary text-uppercase">NHASACH</span>
                                 </div>
                             </a>
                         </div>
-                    </div>                   
+                    </div>
+                    <div class="navbar-breadcrumb">
+                        <h5 class="mb-0">@ViewData["Title"]</h5>
+                    </div>
                     <div class="iq-search-bar">
                         <form action="#" class="searchbox">
-                            <input type="text" class="text search-input" placeholder="Tìm kiếm sản phẩm...">
+                            <input type="text" class="text search-input" placeholder="Tìm kiếm ...">
                             <a class="search-link" href="#"><i class="ri-search-line"></i></a>
                         </form>
                     </div>
@@ -334,7 +340,21 @@
                 </nav>
             </div>
         </div>
-        @RenderBody()
+        @{
+            var ctrl = ViewContext.RouteData.Values["Controller"]?.ToString();
+            if (ctrl == "AdminDashboard" || ctrl == "Account")
+            {
+                <div id="content-page" class="content-page">
+                    <div class="container-fluid">
+                        @RenderBody()
+                    </div>
+                </div>
+            }
+            else
+            {
+                @RenderBody()
+            }
+        }
     </div>
     <!-- Wrapper END -->
     <!-- Footer -->

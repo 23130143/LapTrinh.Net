@@ -13,7 +13,7 @@
 }
 
 <div class="container-fluid mt-4">
-    
+
     @* TIÊU ĐỀ *@
     <div class="row mb-4">
         <div class="col-md-6">
@@ -34,16 +34,16 @@
             <div class="btn-group" role="group">
                 @* Nút lọc Tất cả - không có parameter *@
                 <a href="@Url.Action("Orders", "AdminDashboard")" class="btn btn-outline-secondary">Tất Cả</a>
-                
+
                 @* Nút lọc Chờ xử lý - truyền status=Pending *@
                 <a href="@Url.Action("Orders", "AdminDashboard", new { status = "Pending" })" class="btn btn-outline-warning">⏳ Chờ Xử Lý</a>
-                
+
                 <a href="@Url.Action("Orders", "AdminDashboard", new { status = "Confirmed" })" class="btn btn-outline-info">✅ Đã Xác Nhận</a>
-                
+
                 <a href="@Url.Action("Orders", "AdminDashboard", new { status = "Shipping" })" class="btn btn-outline-primary">🚚 Đang Giao</a>
-                
+
                 <a href="@Url.Action("Orders", "AdminDashboard", new { status = "Delivered" })" class="btn btn-outline-success">✔️ Đã Giao</a>
-                
+
                 <a href="@Url.Action("Orders", "AdminDashboard", new { status = "Cancelled" })" class="btn btn-outline-danger">❌ Đã Hủy</a>
             </div>
         </div>
@@ -52,7 +52,7 @@
     @* BẢNG DANH SÁCH ĐƠN HÀNG *@
     <div class="card">
         <div class="card-body">
-            
+
             @* Kiểm tra nếu có đơn hàng *@
             @if (Model.Any())
             {
@@ -76,23 +76,23 @@
                                 <tr>
                                     @* Cột Mã đơn hàng *@
                                     <td><strong>#@order.Id</strong></td>
-                                    
+
                                     @* Cột Tên khách hàng *@
                                     <td>@order.DeliveryInformation?.Name</td>
-                                    
+
                                     @* Cột Số điện thoại *@
                                     <td>@order.DeliveryInformation?.Phone</td>
-                                    
+
                                     @* Cột Ngày đặt - Format: 26/01/2026 15:30 *@
                                     <td>@order.CreateDate?.ToString("dd/MM/yyyy HH:mm")</td>
-                                    
+
                                     @* Cột Tổng tiền - Format với dấu phẩy: 1,500,000 đ *@
                                     <td>
                                         <strong class="text-success">
                                             @order.TotalAmount?.ToString("N0") đ
                                         </strong>
                                     </td>
-                                    
+
                                     @* Cột Trạng thái - Hiển thị badge màu sắc *@
                                     <td>
                                         @if (order.Status == "Pending")
@@ -120,11 +120,11 @@
                                             <span class="badge bg-secondary">@order.Status</span>
                                         }
                                     </td>
-                                    
+
                                     @* Cột Thao tác - Nút xem chi tiết *@
                                     <td>
                                         @* Link đến /AdminDashboard/OrderDetails/{orderId} *@
-                                        <a href="@Url.Action("OrderDetails", "AdminDashboard", new { id = order.Id })" 
+                                        <a href="@Url.Action("OrderDetails", "AdminDashboard", new { id = order.Id })"
                                            class="btn btn-sm btn-outline-primary">
                                             Chi Tiết
                                         </a>

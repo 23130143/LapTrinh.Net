@@ -13,7 +13,7 @@
 }
 
 <div class="container-fluid mt-4">
-    
+
     @* HEADER *@
     <div class="row mb-4">
         <div class="col-md-6">
@@ -21,21 +21,34 @@
             <p class="text-muted">Danh sách tất cả người dùng trong hệ thống</p>
         </div>
         <div class="col-md-6 text-end">
+            @* Nút thêm người dùng mới *@
+            <a asp-action="CreateUser" class="btn btn-primary shadow-sm">
+                <i class="fa fa-plus"></i> Thêm người dùng mới
+            </a>
             @* Tổng số người dùng *@
-            <span class="badge bg-primary fs-6">
+            <span class="badge bg-info fs-6 ms-2">
                 Tổng: @Model.Count() người dùng
             </span>
         </div>
     </div>
 
+    @* Hiển thị thông báo nếu có *@
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fa fa-check-circle"></i> @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
     <div class="card">
         <div class="card-body">
-            
+
             @* Kiểm tra nếu có người dùng *@
             @if (Model.Any())
             {
                 <div class="table-responsive">
-                    <table class="table table-hover">
+                    <table class="table table-hover align-middle">
                         <thead class="table-dark">
                             <tr>
                                 <th>ID</th>
@@ -43,6 +56,7 @@
                                 <th>Email</th>
                                 <th>Số Điện Thoại</th>
                                 <th>Vai Trò</th>
+                                <th class="text-center">Thao tác</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -52,16 +66,16 @@
                                 <tr>
                                     @* Cột ID *@
                                     <td>@user.Id</td>
-                                    
+
                                     @* Cột Tên *@
                                     <td><strong>@user.Name</strong></td>
-                                    
+
                                     @* Cột Email *@
                                     <td>📧 @user.Email</td>
-                                    
+
                                     @* Cột Số điện thoại *@
                                     <td>📱 @user.Phone</td>
-                                    
+
                                     @* Cột Vai trò - Hiển thị badge màu sắc *@
                                     <td>
                                         @if (user.Role == "Admin")
@@ -79,6 +93,24 @@
                                             @* Badge xám cho vai trò khác *@
                                             <span class="badge bg-secondary">@user.Role</span>
                                         }
+                                    </td>
+
+                                    @* Cột Thao tác: Sửa và Xóa *@
+                                    <td class="text-center">
+                                        <div class="btn-group">
+                                            <a asp-action="EditUser" asp-route-id="@user.Id" class="btn btn-sm btn-warning">
+                                                <i class="fa fa-edit"></i>
+                                            </a>
+                                            @* Form dùng để xóa bằng phương thức POST *@
+                                            <form asp-action="DeleteUser" asp-route-id="@user.Id" method="post"
+                                                  onsubmit="return confirm('Bạn có chắc chắn muốn xóa người dùng này?');"
+                                                  style="display:inline;">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-sm btn-danger">
+                                                    <i class="fa fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -99,7 +131,7 @@
 
 @*
     ==========================================================================
-    GIẢI THÍCH CODE CHO SINH VIÊN:
+    GIẢI THÍCH CODE :
     ==========================================================================
     
     1. @model List<User>
@@ -109,7 +141,6 @@
        - Vai trò của người dùng: "Admin" hoặc "Customer"
     
     3. KHÔNG hiển thị Password
-       - Mật khẩu đã mã hóa BCrypt
        - KHÔNG BAO GIỜ hiển thị password (bảo mật)
        - Ngay cả Admin cũng không thấy được
     
@@ -123,12 +154,7 @@
     - Controller có [Authorize(Roles = "Admin")]
     - Không hiển thị mật khẩu
     
-    CÁC TÍNH NĂNG CÓ THỂ MỞ RỘNG:
-    - Thêm nút "Đổi vai trò" (Customer ↔ Admin)
-    - Thêm nút "Xem đơn hàng của user"
-    - Thêm nút "Khóa/Mở khóa tài khoản"
-    - Thêm tìm kiếm theo tên/email
-    - Thêm filter theo vai trò
+    
     
     ==========================================================================
 *@

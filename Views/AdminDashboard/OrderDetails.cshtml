@@ -13,7 +13,7 @@
 }
 
 <div class="container-fluid mt-4">
-    
+
     @* HEADER *@
     <div class="row mb-4">
         <div class="col-md-6">
@@ -28,10 +28,10 @@
     </div>
 
     <div class="row">
-        
+
         @* ===== PHẦN BÊN TRÁI: THÔNG TIN ĐƠN HÀNG ===== *@
         <div class="col-md-8">
-            
+
             @* CARD 1: THÔNG TIN ĐƠN HÀNG *@
             <div class="card mb-4">
                 <div class="card-header bg-primary text-white">
@@ -140,14 +140,14 @@
                                     @{
                                         int stt = 1;
                                     }
-                                    
+
                                     @* Duyệt qua từng chi tiết đơn hàng *@
                                     @foreach (var detail in Model.Orderdetails)
                                     {
                                         <tr>
                                             @* Cột STT *@
                                             <td>@stt</td>
-                                            
+
                                             @* Cột Tên sản phẩm *@
                                             <td>
                                                 @if (detail.Product != null)
@@ -159,7 +159,7 @@
                                                     <span class="text-muted">N/A</span>
                                                 }
                                             </td>
-                                            
+
                                             @* 
                                                 Cột Đơn giá 
                                                 Lưu ý: Orderdetail không có UnitPrice trong database
@@ -175,10 +175,10 @@
                                                     <span class="text-muted">-</span>
                                                 }
                                             </td>
-                                            
+
                                             @* Cột Số lượng *@
                                             <td class="text-center">@detail.Quantity</td>
-                                            
+
                                             @* 
                                                 Cột Thành tiền = Đơn giá × Số lượng 
                                             *@
@@ -191,7 +191,7 @@
                                                 <strong>@(thanhTien.ToString("N0")) VND</strong>
                                             </td>
                                         </tr>
-                                        
+
                                         stt++;
                                     }
                                 </tbody>
@@ -225,18 +225,18 @@
                     <h5 class="mb-0">⚙️ Cập Nhật Trạng Thái</h5>
                 </div>
                 <div class="card-body">
-                    
+
                     @* FORM CẬP NHẬT TRẠNG THÁI *@
                     @using (Html.BeginForm("UpdateOrderStatus", "AdminDashboard", FormMethod.Post, new { @class = "d-grid gap-3" }))
                     {
                         @* Token bảo mật - Ngăn chặn CSRF attack *@
                         @Html.AntiForgeryToken()
-                        
+
                         @* Hidden input chứa OrderId - Không hiển thị nhưng được gửi kèm form *@
                         <input type="hidden" name="orderId" value="@Model.Id" />
-                        
+
                         @* CÁC NÚT CẬP NHẬT TRẠNG THÁI *@
-                        
+
                         @* Nếu đơn đang Pending - Hiện nút Xác nhận *@
                         @if (Model.Status == "Pending")
                         {
@@ -244,7 +244,7 @@
                                 ✅ Xác Nhận Đơn
                             </button>
                         }
-                        
+
                         @* Nếu đơn đã Confirmed - Hiện nút Chuyển sang giao hàng *@
                         @if (Model.Status == "Confirmed")
                         {
@@ -252,7 +252,7 @@
                                 🚚 Chuyển Sang Giao Hàng
                             </button>
                         }
-                        
+
                         @* Nếu đơn đang Shipping - Hiện nút Đã giao thành công *@
                         @if (Model.Status == "Shipping")
                         {
@@ -260,18 +260,18 @@
                                 ✔️ Đã Giao Thành Công
                             </button>
                         }
-                        
+
                         @* Luôn hiện nút Hủy đơn (trừ khi đã giao hoặc đã hủy) *@
                         @if (Model.Status != "Cancelled" && Model.Status != "Delivered")
                         {
-                            <button type="submit" name="status" value="Cancelled" 
+                            <button type="submit" name="status" value="Cancelled"
                                     class="btn btn-danger btn-lg"
                                     onclick="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?')">
                                 ❌ Hủy Đơn Hàng
                             </button>
                         }
                     }
-                    
+
                     @* HƯỚNG DẪN *@
                     <hr />
                     <h6 class="text-muted">📌 Quy Trình Xử Lý:</h6>
@@ -280,7 +280,7 @@
                         <li><strong>Đã xác nhận</strong> → Chuyển sang giao hàng</li>
                         <li><strong>Đang giao</strong> → Đã giao thành công</li>
                     </ol>
-                    
+
                     <div class="alert alert-info small" role="alert">
                         💡 <strong>Lưu ý:</strong> Đơn hàng đã giao hoặc đã hủy không thể thay đổi trạng thái.
                     </div>

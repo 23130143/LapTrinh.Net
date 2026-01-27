@@ -1,0 +1,75 @@
+﻿@model List<Category>
+@{
+    ViewData["Title"] = "Danh mục sách";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="iq-card">
+                <div class="iq-card-header d-flex justify-content-between">
+                    <div class="iq-header-title">
+                        <h4 class="card-title">Danh sách danh mục</h4>
+                    </div>
+                    <div class="iq-card-header-toolbar d-flex align-items-center">
+                        <a asp-action="CreateCategory" class="btn btn-primary">Thêm danh mục mới</a>
+                    </div>
+                </div>
+                <div class="iq-card-body">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <div class="table-responsive">
+                        <table class="data-tables table table-striped table-bordered" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th width="10%">STT</th>
+                                    <th width="75%">Tên danh mục</th>
+                                    <th width="15%">Hoạt động</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int i = 1;
+                                }
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@i</td>
+                                        <td>@item.Name</td>
+                                        <td>
+                                            <div class="flex align-items-center list-user-action">
+                                                <a class="bg-primary" data-toggle="tooltip" data-placement="top" title="Sửa" asp-action="EditCategory" asp-route-id="@item.CategoryId">
+                                                    <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <form asp-action="DeleteCategory" asp-route-id="@item.CategoryId" method="post" class="d-inline" onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này?');">
+                                                    @Html.AntiForgeryToken()
+                                                    <button type="submit" class="bg-primary border-0 text-white" style="padding: 4px 8px; border-radius: 5px;" data-toggle="tooltip" data-placement="top" title="Xoá">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

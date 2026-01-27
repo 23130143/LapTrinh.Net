@@ -204,11 +204,10 @@ namespace Bookstore.Controllers
         }
 
         // =======================================================================
-        // ACTION: Products
+        // SẢN PHẨM (PRODUCTS)
         // =======================================================================
-        // Hiển thị danh sách tất cả sản phẩm
-        // URL: /AdminDashboard/Products
-        // =======================================================================
+
+        // 1. Hiển thị danh sách sản phẩm (Đã có sẵn, cập nhật thêm TempData)
         public IActionResult Products()
         {
             // Lấy tất cả sản phẩm, kèm theo thông tin Category và Brand
@@ -218,8 +217,126 @@ namespace Bookstore.Controllers
                 .OrderByDescending(p => p.Id)   // Sắp xếp theo Id giảm dần (mới nhất trước)
                 .ToList();
 
-            // Trả về View với danh sách products
             return View(products);
+        }
+
+        // 2. Thêm sản phẩm mới (Trang giao diện)
+        public IActionResult CreateProduct()
+        {
+            // Cần danh sách Categories và Brands để người dùng chọn
+            ViewBag.Categories = _context.Categories.ToList();
+            ViewBag.Brands = _context.Brands.ToList();
+            return View();
+        }
+
+        // 3. Lưu sản phẩm mới vào database
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateProduct(Product product, IFormFile? uploadImage)
+        {
+            if (ModelState.IsValid)
+            {
+                // Xử lý upload ảnh nếu có
+                if (uploadImage != null && uploadImage.Length > 0)
+                {
+                    // Đặt tên file duy nhất để không bị trùng
+                    string fileName = Guid.NewGuid().ToString() + "_" + uploadImage.FileName;
+
+                    // Đường dẫn vật lý để lưu file vào thư mục wwwroot/images/products
+                    string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
+
+                    // Tạo thư mục nếu chưa tồn tại
+                    if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+                    string fullPath = Path.Combine(path, fileName);
+
+                    // Lưu file
+                    using (var stream = new FileStream(fullPath, FileMode.Create))
+                    {
+                        await uploadImage.CopyToAsync(stream);
+                    }
+
+                    // Lưu đường dẫn vào database (dùng đường dẫn tương đối để web hiểu)
+                    product.ImageUrl = "/images/products/" + fileName;
+                }
+
+                _context.Products.Add(product);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Thêm sản phẩm thành công!";
+                return RedirectToAction("Products");
+            }
+
+            ViewBag.Categories = _context.Categories.ToList();
+            ViewBag.Brands = _context.Brands.ToList();
+            return View(product);
+        }
+
+        // 4. Chỉnh sửa sản phẩm (Trang giao diện)
+        public IActionResult EditProduct(int id)
+        {
+            var product = _context.Products.Find(id);
+            if (product == null) return NotFound();
+
+            ViewBag.Categories = _context.Categories.ToList();
+            ViewBag.Brands = _context.Brands.ToList();
+            return View(product);
+        }
+
+        // 5. Cập nhật sản phẩm vào database
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProduct(Product product, IFormFile? uploadImage)
+        {
+            if (ModelState.IsValid)
+            {
+                // Lấy sản phẩm hiện tại từ database (không theo dõi để tránh xung đột object)
+                var existingProduct = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == product.Id);
+
+                if (existingProduct != null)
+                {
+                    // Giữ lại ảnh cũ nếu không upload ảnh mới
+                    product.ImageUrl = existingProduct.ImageUrl;
+
+                    // Xử lý upload ảnh mới
+                    if (uploadImage != null && uploadImage.Length > 0)
+                    {
+                        string fileName = Guid.NewGuid().ToString() + "_" + uploadImage.FileName;
+                        string path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
+                        if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+                        string fullPath = Path.Combine(path, fileName);
+
+                        using (var stream = new FileStream(fullPath, FileMode.Create))
+                        {
+                            await uploadImage.CopyToAsync(stream);
+                        }
+                        product.ImageUrl = "/images/products/" + fileName;
+                    }
+
+                    _context.Products.Update(product);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Cập nhật sản phẩm thành công!";
+                    return RedirectToAction("Products");
+                }
+            }
+
+            ViewBag.Categories = _context.Categories.ToList();
+            ViewBag.Brands = _context.Brands.ToList();
+            return View(product);
+        }
+
+        // 6. Xóa sản phẩm
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteProduct(int id)
+        {
+            var product = _context.Products.Find(id);
+            if (product != null)
+            {
+                _context.Products.Remove(product);
+                _context.SaveChanges();
+                TempData["Success"] = "Xóa sản phẩm thành công!";
+            }
+            return RedirectToAction("Products");
         }
 
         // =======================================================================
@@ -319,19 +436,188 @@ namespace Bookstore.Controllers
         }
 
         // =======================================================================
-        // ACTION: Users
+        // DANH MỤC (CATEGORIES)
         // =======================================================================
-        // Hiển thị danh sách người dùng
-        // URL: /AdminDashboard/Users
+
+        // 1. Hiển thị danh sách danh mục
+        public IActionResult Categories()
+        {
+            var categories = _context.Categories
+                .Include(c => c.CategoryType)
+                .OrderBy(c => c.CategoryId)
+                .ToList();
+            return View(categories);
+        }
+
+        // 2. Thêm danh mục mới (Trang giao diện)
+        public IActionResult CreateCategory()
+        {
+            return View();
+        }
+
+        // 3. Lưu danh mục mới vào database
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CreateCategory(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Categories.Add(category);
+                _context.SaveChanges();
+                TempData["Success"] = "Thêm danh mục thành công!";
+                return RedirectToAction("Categories");
+            }
+            return View(category);
+        }
+
+        // 4. Chỉnh sửa danh mục (Trang giao diện)
+        public IActionResult EditCategory(int id)
+        {
+            var category = _context.Categories.Find(id);
+            if (category == null) return NotFound();
+
+            return View(category);
+        }
+
+        // 5. Cập nhật danh mục vào database
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditCategory(Category category)
+        {
+            if (ModelState.IsValid)
+            {
+                _context.Categories.Update(category);
+                _context.SaveChanges();
+                TempData["Success"] = "Cập nhật danh mục thành công!";
+                return RedirectToAction("Categories");
+            }
+            return View(category);
+        }
+
+        // 6. Xóa danh mục
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteCategory(int id)
+        {
+            var category = _context.Categories.Find(id);
+            if (category != null)
+            {
+                // Kiểm tra xem có sản phẩm nào thuộc danh mục này không
+                var hasProducts = _context.Products.Any(p => p.CategoriesId == id);
+                if (hasProducts)
+                {
+                    TempData["Error"] = "Không thể xóa danh mục này vì đang có sản phẩm thuộc về nó!";
+                }
+                else
+                {
+                    _context.Categories.Remove(category);
+                    _context.SaveChanges();
+                    TempData["Success"] = "Xóa danh mục thành công!";
+                }
+            }
+            return RedirectToAction("Categories");
+        }
+
         // =======================================================================
+        // NGƯỜI DÙNG (USERS)
+        // =======================================================================
+        // 1. Danh sách người dùng (Đã có sẵn)
         public IActionResult Users()
         {
-            // Lấy tất cả user, sắp xếp theo Id giảm dần
             var users = _context.Users
                 .OrderByDescending(u => u.Id)
                 .ToList();
 
             return View(users);
+        }
+
+        // 2. Thêm người dùng mới (Trang giao diện)
+        public IActionResult CreateUser()
+        {
+            return View();
+        }
+
+        // 3. Lưu người dùng mới vào database
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateUser(User user)
+        {
+            // Kiểm tra dữ liệu nhập vào có hợp lệ không (theo các Rules trong Model User)
+            if (ModelState.IsValid)
+            {
+                // Kiểm tra xem Email đã tồn tại trong hệ thống chưa
+                var existingUser = await _context.Users.AnyAsync(u => u.Email == user.Email);
+                if (existingUser)
+                {
+                    ModelState.AddModelError("Email", "Email này đã được sử dụng bởi người khác!");
+                    return View(user);
+                }
+
+                // Lưu user vào bảng Users
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+
+                // Thông báo thành công và quay lại danh sách
+                TempData["Success"] = "Thêm người dùng thành công!";
+                return RedirectToAction("Users");
+            }
+
+            // Nếu dữ liệu lỗi, quay lại form kèm lỗi
+            return View(user);
+        }
+
+        // 4. Chỉnh sửa người dùng (Trang giao diện)
+        public IActionResult EditUser(int id)
+        {
+            // Tìm user theo ID
+            var user = _context.Users.Find(id);
+            if (user == null) return NotFound();
+
+            return View(user);
+        }
+
+        // 5. Cập nhật thông tin người dùng vào database
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditUser(User user)
+        {
+            if (ModelState.IsValid)
+            {
+                // Tìm link cũ trong database (không theo dõi để tránh xung đột)
+                var existingUser = await _context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == user.Id);
+
+                if (existingUser != null)
+                {
+                    // Nếu admin để trống mật khẩu khi sửa -> Giữ mật khẩu cũ
+                    if (string.IsNullOrEmpty(user.Password))
+                    {
+                        user.Password = existingUser.Password;
+                    }
+
+                    _context.Users.Update(user);
+                    await _context.SaveChangesAsync();
+                    TempData["Success"] = "Cập nhật người dùng thành công!";
+                    return RedirectToAction("Users");
+                }
+            }
+
+            return View(user);
+        }
+
+        // 6. Xóa người dùng
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+            if (user != null)
+            {
+                // Lưu ý: Không nên xóa Admin duy nhất hoặc chính mình (nếu muốn nâng cao)
+                _context.Users.Remove(user);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Xóa người dùng thành công!";
+            }
+            return RedirectToAction("Users");
         }
     }
 }

@@ -1,207 +1,111 @@
-@*
-    ==========================================================================
-    TRANG QUẢN LÝ SẢN PHẨM
-    ==========================================================================
-    Mục đích: Hiển thị danh sách tất cả sản phẩm
-    Model: List<Product> - Danh sách sản phẩm từ database
-    ==========================================================================
-*@
-
 @model List<Product>
 @{
-    ViewData["Title"] = "Quản Lý Sản Phẩm";
+    ViewData["Title"] = "Danh sách sách";
 }
 
-<div class="container-fluid mt-4">
-    
-    @* HEADER *@
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <h2>📚 Quản Lý Sản Phẩm</h2>
-            <p class="text-muted">Danh sách tất cả sản phẩm trong hệ thống</p>
-        </div>
-        <div class="col-md-6 text-end">
-            @* Tổng số sản phẩm *@
-            <span class="badge bg-primary fs-6">
-                Tổng: @Model.Count() sản phẩm
-            </span>
-        </div>
-    </div>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="iq-card">
+                <div class="iq-card-header d-flex justify-content-between">
+                    <div class="iq-header-title">
+                        <h4 class="card-title">Danh sách sách</h4>
+                    </div>
+                    <div class="iq-card-header-toolbar d-flex align-items-center">
+                        <a asp-action="CreateProduct" class="btn btn-primary">Thêm sách mới</a>
+                    </div>
+                </div>
+                <div class="iq-card-body">
+                    @if (TempData["Success"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["Success"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
 
-    <div class="card">
-        <div class="card-body">
-            
-            @* Kiểm tra nếu có sản phẩm *@
-            @if (Model.Any())
-            {
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>ID</th>
-                                <th>Ảnh</th>
-                                <th>Tên Sản Phẩm</th>
-                                <th>Mã SP</th>
-                                <th>Danh Mục</th>
-                                <th>Thương Hiệu</th>
-                                <th>Giá</th>
-                                <th>Giảm Giá</th>
-                                <th>Trạng Thái</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @* Duyệt qua từng sản phẩm *@
-                            @foreach (var product in Model)
-                            {
+                    <div class="table-responsive">
+                        <table class="data-tables table table-striped table-bordered" style="width:100%">
+                            <thead>
                                 <tr>
-                                    @* Cột ID *@
-                                    <td>@product.Id</td>
-                                    
-                                    @* Cột Ảnh sản phẩm *@
-                                    <td>
-                                        @if (!string.IsNullOrEmpty(product.ImageUrl))
-                                        {
-                                            @* Hiển thị ảnh nếu có ImageUrl *@
-                                            <img src="@product.ImageUrl" 
-                                                 alt="@product.Name" 
-                                                 class="img-thumbnail" 
-                                                 style="width: 50px; height: 50px; object-fit: cover;">
-                                        }
-                                        else
-                                        {
-                                            @* Hiển thị icon mặc định nếu không có ảnh *@
-                                            <span class="text-muted">📷</span>
-                                        }
-                                    </td>
-                                    
-                                    @* Cột Tên sản phẩm *@
-                                    <td>
-                                        <strong>@product.Name</strong>
-                                    </td>
-                                    
-                                    @* Cột Mã sản phẩm *@
-                                    <td>
-                                        <small class="text-muted">@product.MaSp</small>
-                                    </td>
-                                    
-                                    @* Cột Danh mục *@
-                                    <td>
-                                        @if (product.Categories != null)
-                                        {
-                                            <span class="badge bg-info">@product.Categories.Name</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">-</span>
-                                        }
-                                    </td>
-                                    
-                                    @* Cột Thương hiệu *@
-                                    <td>
-                                        @if (product.Brand != null)
-                                        {
-                                            @product.Brand.Name
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">-</span>
-                                        }
-                                    </td>
-                                    
-                                    @* Cột Giá - Format với dấu phẩy *@
-                                    <td>
-                                        <strong class="text-success">
-                                            @product.Price?.ToString("N0") đ
-                                        </strong>
-                                    </td>
-                                    
-                                    @* Cột Giảm giá (%) *@
-                                    <td>
-                                        @if (product.Discount > 0)
-                                        {
-                                            <span class="badge bg-danger">-@product.Discount%</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-muted">-</span>
-                                        }
-                                    </td>
-                                    
-                                    @* Cột Trạng thái *@
-                                    <td>
-                                        @if (product.Status == "Active")
-                                        {
-                                            <span class="badge bg-success">Đang bán</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="badge bg-secondary">Ngừng bán</span>
-                                        }
-                                    </td>
+                                    <th width="3%">STT</th>
+                                    <th width="7%">Ảnh</th>
+                                    <th width="25%">Tên sách</th>
+                                    <th width="10%">Mã SP</th>
+                                    <th width="15%">Danh mục</th>
+                                    <th width="10%">Giá</th>
+                                    <th width="10%">Giảm giá</th>
+                                    <th width="10%">Trạng thái</th>
+                                    <th width="10%">Hoạt động</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @{
+                                    int i = 1;
+                                }
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td>@i</td>
+                                        <td>
+                                            @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                            {
+                                                <img src="@item.ImageUrl" class="img-fluid rounded" style="width: 50px;" alt="">
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">📷</span>
+                                            }
+                                        </td>
+                                        <td>@item.Name</td>
+                                        <td><small>@item.MaSp</small></td>
+                                        <td><span class="badge badge-info">@item.Categories?.Name</span></td>
+                                        <td><strong>@item.Price?.ToString("N0") đ</strong></td>
+                                        <td>
+                                            @if (item.Discount > 0)
+                                            {
+                                                <span class="badge border border-danger text-danger">-@item.Discount%</span>
+                                            }
+                                            else
+                                            {
+                                                <span>-</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (item.Status == "Active")
+                                            {
+                                                <span class="badge badge-success">Đang bán</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge badge-secondary">Ngừng bán</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <div class="flex align-items-center list-user-action">
+                                                <a class="bg-primary" data-toggle="tooltip" data-placement="top" title="Sửa"
+                                                   asp-action="EditProduct" asp-route-id="@item.Id">
+                                                    <i class="ri-pencil-line"></i>
+                                                </a>
+                                                <form asp-action="DeleteProduct" asp-route-id="@item.Id" method="post"
+                                                      class="d-inline"
+                                                      onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                                                    <button type="submit" class="bg-primary border-0 text-white"
+                                                            style="padding: 4px 8px; border-radius: 5px;" data-toggle="tooltip"
+                                                            data-placement="top" title="Xoá">
+                                                        <i class="ri-delete-bin-line"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    i++;
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            }
-            else
-            {
-                @* Không có sản phẩm *@
-                <div class="text-center py-5">
-                    <p class="text-muted">Chưa có sản phẩm nào trong hệ thống</p>
-                </div>
-            }
+            </div>
         </div>
     </div>
 </div>
-
-@*
-    ==========================================================================
-    GIẢI THÍCH CODE CHO SINH VIÊN:
-    ==========================================================================
-    
-    1. @model List<Product>
-       - Khai báo kiểu dữ liệu: danh sách sản phẩm
-    
-    2. @Model.Count()
-       - Đếm số phần tử trong danh sách
-    
-    3. @Model.Any()
-       - Kiểm tra danh sách có phần tử không
-       - true: Có phần tử
-       - false: Rỗng
-    
-    4. string.IsNullOrEmpty(product.ImageUrl)
-       - Kiểm tra ImageUrl null HOẶC rỗng ("")
-       - An toàn hơn chỉ kiểm tra null
-    
-    5. product.Categories
-       - Truy cập Category của sản phẩm
-       - Cần Include() trong Controller, nếu không sẽ null
-    
-    6. product.Brand
-       - Truy cập Brand của sản phẩm
-       - Cũng cần Include() trong Controller
-    
-    7. @product.Price?.ToString("N0")
-       - Dấu ? là null-conditional operator
-       - ToString("N0"): Format số với dấu phẩy
-       - 1500000 → 1,500,000
-    
-    8. @product.Discount
-       - Phần trăm giảm giá (0-100)
-       - Hiển thị badge đỏ nếu > 0
-    
-    LƯU Ý:
-    - Database không có property StockQuantity nên đã bỏ cột này
-    - Có thể thêm sau nếu cần bằng cách thêm column vào database
-    
-    CÁC TÍNH NĂNG CÓ THỂ MỞ RỘNG:
-    - Thêm nút "Thêm sản phẩm mới"
-    - Thêm nút "Sửa" và "Xóa" cho từng sản phẩm
-    - Thêm tìm kiếm theo tên
-    - Thêm lọc theo danh mục/thương hiệu
-    - Thêm phân trang
-    
-    ==========================================================================
-*@

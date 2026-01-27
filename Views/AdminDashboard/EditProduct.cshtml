@@ -1,0 +1,103 @@
+﻿@model Product
+@{
+    ViewData["Title"] = "Chỉnh sửa sách";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="iq-card">
+                <div class="iq-card-header d-flex justify-content-between">
+                    <div class="iq-header-title">
+                        <h4 class="card-title">Chỉnh sửa sách: @Model.Name</h4>
+                    </div>
+                </div>
+                <div class="iq-card-body">
+                    <form asp-action="EditProduct" method="post" enctype="multipart/form-data">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Tên sách:</label>
+                                    <input asp-for="Name" type="text" class="form-control" required />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Mã sản phẩm (SKU):</label>
+                                    <input asp-for="MaSp" type="text" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Giá bán (VNĐ):</label>
+                                    <input asp-for="Price" type="number" class="form-control" />
+                                </div>
+                                <div class="form-group">
+                                    <label>Giảm giá (%):</label>
+                                    <input asp-for="Discount" type="number" class="form-control" min="0" max="100" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label>Danh mục:</label>
+                                    <select asp-for="CategoriesId" class="form-control" asp-items="@(new SelectList(ViewBag.Categories, "CategoryId", "Name"))">
+                                        <option value="">-- Chọn danh mục --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Thương hiệu:</label>
+                                    <select asp-for="BrandId" class="form-control" asp-items="@(new SelectList(ViewBag.Brands, "Id", "Name"))">
+                                        <option value="">-- Chọn thương hiệu --</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Trạng thái:</label>
+                                    <select asp-for="Status" class="form-control">
+                                        <option value="Active">Đang bán</option>
+                                        <option value="Inactive">Ngừng bán</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Ảnh sản phẩm hiện tại:</label>
+                                    <div class="mb-2">
+                                        @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                                        {
+                                            <img src="@Model.ImageUrl" class="img-fluid rounded" style="width: 100px;" alt="">
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Chưa có ảnh</span>
+                                        }
+                                    </div>
+                                    <label>Thay đổi ảnh (nếu muốn):</label>
+                                    <input type="file" name="uploadImage" class="form-control" accept="image/*" onchange="previewImage(this)" />
+                                    <div class="mt-2">
+                                        <img id="imgPreview" src="#" alt="Preview" style="max-height: 150px; display: none;" class="img-thumbnail" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-primary">Lưu Thay Đổi</button>
+                            <a asp-action="Products" class="btn btn-danger">Trở lại</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#imgPreview').attr('src', e.target.result).show();
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+}
